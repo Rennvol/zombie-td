@@ -23,6 +23,8 @@ const G = {
   startTime: 0,
   lastTs: 0,
   waveStartedAt: 0,
+  // camera (mobile zoom/pan)
+  cam: { x: 0, y: 0, zoom: 1, targetZoom: 1 },
   // callbacks wired by UI
   onUpdate: null,   // (hud) => {}
   onWin: null,
@@ -110,6 +112,15 @@ function spawnZombie(spec) {
 // ---- update ----
 
 function update(dt) {
+  // smooth camera zoom
+  const c = G.cam;
+  c.zoom += (c.targetZoom - c.zoom) * Math.min(1, dt * 8);
+  if (Math.abs(c.targetZoom - c.zoom) < 0.01) c.zoom = c.targetZoom;
+  // clamp pan within world
+  const vw = G.W / c.zoom, vh = G.H / c.zoom;
+  c.x = Math.max(0, Math.min(G.W - vw, c.x));
+  c.y = Math.max(0, Math.min(G.H - vh, c.y));
+
   if (G.state !== 'playing') return;
 
   // spawning
@@ -253,12 +264,16 @@ function loseStage() {
 function render() {
   const ctx = G.ctx;
   ctx.clearRect(0, 0, G.W, G.H);
+  ctx.save();
+  ctx.translate(-G.cam.x, -G.cam.y);
+  ctx.scale(G.cam.zoom, G.cam.zoom);
   drawBackground(ctx);
   drawPath(ctx);
   drawTowerSlots(ctx);
   drawZombies(ctx);
   drawBullets(ctx);
   drawParticles(ctx);
+  ctx.restore();
 }
 
 function drawBackground(ctx) {

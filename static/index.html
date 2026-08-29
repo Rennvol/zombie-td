@@ -388,6 +388,15 @@ function startStageUI(id){
   G.onWin=onWin;
   G.onLose=onLose;
   startStage(id);
+  // mobile: zoom in so tower cells are big, desktop: full map
+  const isMobile = window.matchMedia('(max-width:600px)').matches;
+  if(isMobile){
+    G.cam.zoom = G.cam.targetZoom = 1.75;
+    G.cam.x = 0; G.cam.y = 0;
+  } else {
+    G.cam.zoom = G.cam.targetZoom = 1;
+    G.cam.x = 0; G.cam.y = 0;
+  }
   $('hudZone').textContent=id;
   updateHUD();
   showWinOverlay(false);
@@ -431,7 +440,47 @@ function onLose(res){
   $('loseExit').onclick=()=>openStageSelect();
 }
 
-// auto-login
+// --- camera touch/pinch/pan ---
+(function(){
+  const cv = $('gameCanvas');
+  let touch = null; // {mode:'pan'|'pinch', x0,y0, dist0, cx0,cy0, zoom0}
+  cv.addEventListener('touchstart', e => {
+    if(G.state!=='playing') return;
+    if(e.touches.length===1){
+      const t=e.touches[0];
+      touch={mode:'pan',x0:t.clientX,y0:t.clientY,cx0:G.cam.x,cy0:G.cam.y};
+    } else if(e.touches.length>=2){
+      const a=e.touches[0], b=e.touches[1];
+      touch={mode:'pinch',dist0:Math.hypot(b.clientX-a.clientX,b.clientY-a.clientY),
+        cx0:G.cam.x,cy0:G.cam.y,zoom0:G.cam.zoom};
+    }
+    if(touch) e.preventDefault();
+  },{passive:false});
+  cv.addEventListener('touchmove', e => {
+    if(!touch||G.state!=='playing') return;
+    e.preventDefault();
+    if(touch.mode==='pan' && e.touches.length===1){
+      const t=e.touches[0];
+      G.cam.x = touch.cx0 - (t.clientX-touch.x0)/G.cam.zoom;
+      G.cam.y = touch.cy0 - (t.clientY-touch.y0)/G.cam.zoom;
+    } else if(touch.mode==='pinch' && e.touches.length>=2){
+      const a=e.touches[0], b=e.touches[1];
+      const d=Math.hypot(b.clientX-a.clientX,b.clientY-a.clientY);
+      const z=Math.max(1,Math.min(3, touch.zoom0*(d/touch.dist0)));
+      G.cam.targetZoom=z;
+    }
+  },{passive:false});
+  const end=()=>{touch=null};
+  cv.addEventListener('touchend',end); cv.addEventListener('touchcancel',end);
+  // desktop wheel zoom
+  cv.addEventListener('wheel', e => {
+    if(G.state!=='playing') return;
+    e.preventDefault();
+    G.cam.targetZoom=Math.max(1,Math.min(3, G.cam.targetZoom - e.deltaY*0.001));
+  },{passive:false});
+})();
+
+// --- auto-login ---
 if(TOKEN) loadApp();
 </script>
 </body>

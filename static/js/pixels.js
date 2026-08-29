@@ -29,7 +29,9 @@ function drawZombie(ctx, x, y, s, opts = {}) {
   const b = s / 16;             // base unit
   ctx.save();
   ctx.translate(x, y);
-  // feet offset by frame
+  // dark outline for contrast
+  ctx.fillStyle = '#0a0d08';
+  ctx.fillRect(-b * 8, -b * 13, b * 16, b * 21);
   const step = frame ? b * 2 : -b * 2;
   // legs
   px(ctx, -b * 4 + step * 0.5, b * 5, b * 3, b * 5, PAL.zombie[4]);
