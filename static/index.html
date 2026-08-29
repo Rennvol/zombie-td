@@ -152,6 +152,32 @@ input:focus{outline:2px solid var(--color-accent);outline-offset:0}
 }
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
+@media (max-width:600px){
+  body{align-items:flex-start;padding:var(--space-md) 0}
+  .panel{width:94vw;padding:var(--space-lg) var(--space-md)}
+  .panel::before{display:none}
+  h1{font-size:clamp(26px,10vw,38px)}
+  h2{font-size:20px}
+  .sub{margin-bottom:var(--space-lg)}
+  input{font-size:16px;padding:14px 12px} /* 16px anti iOS auto-zoom */
+  .btn{font-size:15px;padding:14px 12px;margin-top:var(--space-md)}
+  .stage-grid{grid-template-columns:1fr;gap:var(--space-sm)}
+  .stage-card{padding:14px 16px}
+  .stage-card .nm{font-size:16px}
+  .stage-card .rw{font-size:13px}
+  .stage-card .num{font-size:11px}
+  .canvas-wrap{overflow-x:auto;max-width:none;border:0;touch-action:pan-x}
+  #gameCanvas{width:640px}
+  .hud{gap:var(--space-xs);font-size:12px;padding:var(--space-sm);flex-wrap:wrap;min-width:0;padding-left:10px}
+  .hud .hud-item{font-size:12px}
+  .hud .grow{display:none}
+  .hud .btn.small{padding:8px 10px;font-size:11px;min-height:44px;width:auto;flex-shrink:0}
+  .hud .btn.small:last-child{margin-left:auto}
+  .foot{font-size:9px}
+  #toast{width:90%;text-align:center}
+  .overlay .btn{width:80%}
+  .overlay .btn + .btn{margin:var(--space-sm) 0 0 0}
+}
 @media (prefers-reduced-motion: reduce){
   *{transition:none!important}
 }
@@ -339,7 +365,7 @@ function openStageSelect(){
       '<div class="num">ZONE '+id+'</div>'+
       '<div class="nm">'+stageName(id)+'</div>'+
       '<div class="rw">reward $'+stageReward(id)+'</div>'+
-      '<div class="star">'+(unlocked?starsStr(stars):'🔒')+'</div>';
+      '<div class="star">'+(unlocked?starsStr(stars):'<span class="lock">🔒 LOCKED</span>')+'</div>';
     if(unlocked){
       card.onclick=()=>startStageUI(id);
       card.onkeydown=e=>{if(e.key==='Enter')startStageUI(id)};
