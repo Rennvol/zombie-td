@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZOMBIE TD</title>
+<style>
+/* Hallmark · macrostructure: Portal · tone: atmospheric · anchor hue: hazard-green */
+:root{
+  --color-paper: oklch(16% 0.02 130);
+  --color-paper-2: oklch(21% 0.02 130);
+  --color-paper-3: oklch(27% 0.02 130);
+  --color-ink: oklch(88% 0.01 100);
+  --color-ink-dim: oklch(62% 0.01 100);
+  --color-accent: oklch(72% 0.16 135);
+  --color-accent-dim: oklch(45% 0.10 135);
+  --color-danger: oklch(62% 0.19 30);
+  --font-display: 'Courier New', monospace;
+  --font-body: 'Courier New', monospace;
+  --space-xs: 4px; --space-sm: 8px; --space-md: 16px; --space-lg: 24px; --space-xl: 40px;
+  --radius: 2px;
+  --ease-out: cubic-bezier(.16,1,.3,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{overflow-x:clip;min-height:100%}
+body{
+  background:var(--color-paper);
+  color:var(--color-ink);
+  font-family:var(--font-body);
+  display:flex;align-items:center;justify-content:center;
+  min-height:100vh;
+  background-image:
+    radial-gradient(ellipse 80% 60% at 50% -10%, oklch(25% 0.05 130), transparent),
+    repeating-linear-gradient(0deg, transparent 0 3px, oklch(0% 0 0 / .08) 3px 4px);
+}
+.panel{
+  width:min(92vw, 400px);
+  background:var(--color-paper-2);
+  border:1px solid var(--color-paper-3);
+  border-top:3px solid var(--color-accent);
+  padding:var(--space-xl) var(--space-lg);
+  position:relative;
+}
+.panel::before{
+  content:"⚠ QUARANTINE ZONE ⚠";
+  position:absolute;top:var(--space-md);right:var(--space-md);
+  font-size:10px;letter-spacing:2px;color:var(--color-danger);
+  opacity:.8;
+}
+h1{
+  font-size:clamp(28px, 8vw, 40px);
+  letter-spacing:4px;
+  font-style:normal;
+  margin-bottom:var(--space-xs);
+  text-shadow:0 0 24px oklch(72% 0.16 135 / .5);
+}
+.sub{color:var(--color-ink-dim);font-size:12px;letter-spacing:1px;margin-bottom:var(--space-xl);text-transform:uppercase}
+label{display:block;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-ink-dim);margin:var(--space-md) 0 var(--space-xs)}
+input{
+  width:100%;background:var(--color-paper);
+  border:1px solid var(--color-paper-3);
+  color:var(--color-ink);
+  font-family:var(--font-body);
+  padding:var(--space-md);
+  font-size:14px;
+  border-radius:var(--radius);
+}
+input:focus{outline:2px solid var(--color-accent);outline-offset:0}
+.btn{
+  width:100%;margin-top:var(--space-lg);
+  background:var(--color-accent);color:oklch(14% 0.02 130);
+  border:0;padding:var(--space-md);
+  font-family:var(--font-body);font-weight:700;font-size:14px;
+  letter-spacing:3px;text-transform:uppercase;cursor:pointer;
+  border-radius:var(--radius);
+  transition:transform .15s var(--ease-out), background .15s var(--ease-out);
+}
+.btn:hover{background:oklch(78% 0.16 135);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn:focus-visible{outline:2px solid var(--color-ink);outline-offset:2px}
+.switch{text-align:center;margin-top:var(--space-md);font-size:12px;color:var(--color-ink-dim)}
+.switch a{color:var(--color-accent);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.err{color:var(--color-danger);font-size:12px;min-height:16px;margin-top:var(--space-sm)}
+.ok{color:var(--color-accent);font-size:12px;min-height:16px;margin-top:var(--space-sm)}
+.foot{position:fixed;bottom:var(--space-md);left:0;right:0;text-align:center;font-size:10px;color:var(--color-ink-dim);letter-spacing:2px}
+.screen{display:none}
+.screen.active{display:block}
+#app .panel{text-align:center}
+#app h2{letter-spacing:3px;margin-bottom:var(--space-md)}
+.stat{display:flex;justify-content:space-between;padding:var(--space-sm) 0;border-bottom:1px dashed var(--color-paper-3);font-size:13px}
+.stat b{color:var(--color-accent)}
+.logout{margin-top:var(--space-lg);background:var(--color-paper-3);color:var(--color-ink)}
+@media (prefers-reduced-motion: reduce){
+  *{transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<div id="loginScreen" class="screen active">
+  <div class="panel">
+    <h1>ZOMBIE&nbsp;TD</h1>
+    <div class="sub">Survive the horde — rebuild the line</div>
+    <label for="liU">Survivor ID</label>
+    <input id="liU" autocomplete="username" placeholder="username">
+    <label for="liP">Password</label>
+    <input id="liP" type="password" autocomplete="current-password" placeholder="••••••••">
+    <div class="err" id="liErr"></div>
+    <button class="btn" id="liBtn">Masuk</button>
+    <div class="switch">Belum punya akun? <a id="toReg">Daftar</a></div>
+  </div>
+</div>
+
+<!-- ===== REGISTER ===== -->
+<div id="regScreen" class="screen">
+  <div class="panel">
+    <h1>ZOMBIE&nbsp;TD</h1>
+    <div class="sub">Register — join the survivors</div>
+    <label for="reU">Username</label>
+    <input id="reU" autocomplete="username" placeholder="3-32 karakter">
+    <label for="reP">Password</label>
+    <input id="reP" type="password" autocomplete="new-password" placeholder="minimal 6 karakter">
+    <div class="err" id="reErr"></div>
+    <button class="btn" id="reBtn">Daftar</button>
+    <div class="switch">Udah punya akun? <a id="toLi">Masuk</a></div>
+  </div>
+</div>
+
+<!-- ===== APP (logged in) ===== -->
+<div id="app" class="screen">
+  <div class="panel">
+    <h2>SURVIVOR HQ</h2>
+    <div class="sub" id="appUser"></div>
+    <div class="stat"><span>Gold</span><b id="appGold">0</b></div>
+    <div class="stat"><span>Stage terbuka</span><b id="appStage">1</b></div>
+    <button class="btn" id="playBtn" disabled>▶ MULAI STAGE (fase 2)</button>
+    <button class="btn logout" id="logoutBtn">Keluar</button>
+  </div>
+</div>
+
+<div class="foot">ZOMBIE TD // server online</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let TOKEN = localStorage.getItem('ztd_token') || '';
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active')}
+function setErr(id,msg){$(id).textContent=msg||''}
+function setOK(id,msg){$(id).textContent=msg||''}
+
+async function api(path, opts={}){
+  const res = await fetch(path, {
+    ...opts,
+    headers: {
+      'Content-Type':'application/json',
+      ...(TOKEN?{Authorization:TOKEN}:{}),
+      ...(opts.headers||{})
+    }
+  });
+  const data = await res.json().catch(()=>({}));
+  return {status:res.status, data};
+}
+
+// --- screen switch ---
+$('toReg').onclick = ()=>{show('regScreen');setErr('reErr');setErr('liErr')};
+$('toLi').onclick  = ()=>{show('loginScreen');setErr('reErr');setErr('liErr')};
+
+// --- login ---
+async function doLogin(){
+  const u=$('liU').value.trim(), p=$('liP').value;
+  if(!u||!p){setErr('liErr','isi username & password');return}
+  setErr('liErr'); $('liBtn').disabled=true;
+  const {status,data} = await api('/api/login',{method:'POST',body:JSON.stringify({username:u,password:p})});
+  $('liBtn').disabled=false;
+  if(status!==200){setErr('liErr',data.error||'gagal');return}
+  TOKEN=data.token; localStorage.setItem('ztd_token',TOKEN);
+  await loadApp();
+}
+$('liBtn').onclick=doLogin;
+$('liP').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+
+// --- register ---
+async function doReg(){
+  const u=$('reU').value.trim(), p=$('reP').value;
+  if(!u||!p){setErr('reErr','isi username & password');return}
+  if(p.length<6){setErr('reErr','password minimal 6 karakter');return}
+  setErr('reErr'); $('reBtn').disabled=true;
+  const {status,data} = await api('/api/register',{method:'POST',body:JSON.stringify({username:u,password:p})});
+  $('reBtn').disabled=false;
+  if(status!==200){setErr('reErr',data.error||'gagal');return}
+  setOK('reErr',''); 
+  // auto login
+  const r2 = await api('/api/login',{method:'POST',body:JSON.stringify({username:u,password:p})});
+  if(r2.status===200){TOKEN=r2.data.token;localStorage.setItem('ztd_token',TOKEN);await loadApp()}
+  else {setErr('reErr','daftar ok, login manual aja');show('loginScreen');$('liU').value=u}
+}
+$('reBtn').onclick=doReg;
+$('reP').addEventListener('keydown',e=>{if(e.key==='Enter')doReg()});
+
+// --- app ---
+async function loadApp(){
+  const {status,data} = await api('/api/me');
+  if(status!==200){localStorage.removeItem('ztd_token');TOKEN='';show('loginScreen');return}
+  $('appUser').textContent = 'SURVIVOR: '+data.username;
+  $('appGold').textContent = data.gold.toLocaleString('id-ID');
+  let st = {};
+  try{st = JSON.parse(data.state)}catch(e){}
+  $('appStage').textContent = st.stage_open||1;
+  show('app');
+}
+$('playBtn').onclick=()=>{};
+$('logoutBtn').onclick=()=>{TOKEN='';localStorage.removeItem('ztd_token');show('loginScreen')};
+
+// auto-login kalau token ada
+if(TOKEN) loadApp();
+</script>
+</body>
+</html>

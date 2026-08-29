@@ -1,0 +1,11 @@
+{
+  "apps": [{
+    "name": "zombie-td",
+    "script": "./bin/ztd",
+    "cwd": "/home/ubuntu/zombie-td",
+    "env": {
+      "DB_DSN": "dnd:f86c4dd3f7e98178805e7460@tcp(localhost:3306)/ztd",
+      "PORT": "30513"
+    }
+  }]
+}
