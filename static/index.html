@@ -54,6 +54,7 @@ h1{
   margin-bottom:var(--space-xs);
   text-shadow:0 0 24px oklch(72% 0.16 135 / .5);
 }
+h2{letter-spacing:3px;margin-bottom:var(--space-md);font-style:normal}
 .sub{color:var(--color-ink-dim);font-size:12px;letter-spacing:1px;margin-bottom:var(--space-xl);text-transform:uppercase}
 label{display:block;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-ink-dim);margin:var(--space-md) 0 var(--space-xs)}
 input{
@@ -79,6 +80,8 @@ input:focus{outline:2px solid var(--color-accent);outline-offset:0}
 .btn:active{transform:translateY(0)}
 .btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
 .btn:focus-visible{outline:2px solid var(--color-ink);outline-offset:2px}
+.btn.ghost{background:var(--color-paper-3);color:var(--color-ink)}
+.btn.small{padding:var(--space-sm) var(--space-md);width:auto;margin-top:var(--space-sm);font-size:12px}
 .switch{text-align:center;margin-top:var(--space-md);font-size:12px;color:var(--color-ink-dim)}
 .switch a{color:var(--color-accent);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
 .err{color:var(--color-danger);font-size:12px;min-height:16px;margin-top:var(--space-sm)}
@@ -87,10 +90,68 @@ input:focus{outline:2px solid var(--color-accent);outline-offset:0}
 .screen{display:none}
 .screen.active{display:block}
 #app .panel{text-align:center}
-#app h2{letter-spacing:3px;margin-bottom:var(--space-md)}
 .stat{display:flex;justify-content:space-between;padding:var(--space-sm) 0;border-bottom:1px dashed var(--color-paper-3);font-size:13px}
 .stat b{color:var(--color-accent)}
 .logout{margin-top:var(--space-lg);background:var(--color-paper-3);color:var(--color-ink)}
+
+/* ---- stage select ---- */
+.stage-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--space-md);margin-top:var(--space-md)}
+.stage-card{
+  background:var(--color-paper);border:1px solid var(--color-paper-3);
+  padding:var(--space-md);cursor:pointer;text-align:left;
+  transition:border-color .15s var(--ease-out), transform .15s var(--ease-out);
+  font-family:var(--font-body);
+}
+.stage-card:hover{border-color:var(--color-accent);transform:translateY(-1px)}
+.stage-card:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}
+.stage-card.locked{opacity:.4;cursor:not-allowed}
+.stage-card .num{font-size:10px;letter-spacing:2px;color:var(--color-ink-dim)}
+.stage-card .nm{font-size:13px;font-weight:700;margin:var(--space-xs) 0;letter-spacing:1px}
+.stage-card .rw{font-size:11px;color:var(--color-accent)}
+.stage-card .star{color:var(--color-accent);letter-spacing:2px;font-size:12px}
+.stage-card .star.empty{color:var(--color-paper-3)}
+.back-row{margin-top:var(--space-md)}
+
+/* ---- HUD ---- */
+#gameScreen{padding:var(--space-md)}
+.hud{
+  display:flex;gap:var(--space-md);flex-wrap:wrap;align-items:center;
+  background:var(--color-paper-2);border:1px solid var(--color-paper-3);
+  padding:var(--space-sm) var(--space-md);margin-bottom:var(--space-sm);
+  font-size:13px;
+}
+.hud .hud-item{display:flex;align-items:center;gap:6px;letter-spacing:1px}
+.hud .hud-item b{color:var(--color-accent)}
+.hud .grow{flex:1}
+.hud .lives.low{color:var(--color-danger)}
+.canvas-wrap{
+  position:relative;width:100%;max-width:960px;margin:0 auto;
+  border:1px solid var(--color-paper-3);
+  background:#0f120c;
+}
+#gameCanvas{display:block;width:100%;height:auto;image-rendering:pixelated}
+.overlay{
+  position:absolute;inset:0;display:none;align-items:center;justify-content:center;
+  background:oklch(10% 0.02 130 / .85);flex-direction:column;text-align:center;
+}
+.overlay.active{display:flex}
+.overlay h2{font-size:clamp(24px,6vw,40px);letter-spacing:6px}
+.overlay .stars{font-size:28px;letter-spacing:8px;margin:var(--space-md) 0;color:var(--color-accent)}
+.overlay .stars .empty{color:var(--color-paper-3)}
+.overlay .info{margin-bottom:var(--space-md);color:var(--color-ink-dim)}
+.overlay .btn{width:auto;padding:var(--space-md) var(--space-xl)}
+.overlay .btn + .btn{margin-top:var(--space-sm);margin-left:var(--space-sm)}
+
+/* ---- toast ---- */
+#toast{
+  position:fixed;top:var(--space-lg);left:50%;transform:translateX(-50%) translateY(-20px);
+  background:var(--color-accent);color:oklch(14% 0.02 130);
+  padding:var(--space-sm) var(--space-lg);font-size:13px;font-weight:700;
+  letter-spacing:1px;opacity:0;pointer-events:none;z-index:99;
+  transition:opacity .3s var(--ease-out), transform .3s var(--ease-out);
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
 @media (prefers-reduced-motion: reduce){
   *{transition:none!important}
 }
@@ -128,27 +189,79 @@ input:focus{outline:2px solid var(--color-accent);outline-offset:0}
   </div>
 </div>
 
-<!-- ===== APP (logged in) ===== -->
+<!-- ===== HQ ===== -->
 <div id="app" class="screen">
   <div class="panel">
     <h2>SURVIVOR HQ</h2>
     <div class="sub" id="appUser"></div>
     <div class="stat"><span>Gold</span><b id="appGold">0</b></div>
     <div class="stat"><span>Stage terbuka</span><b id="appStage">1</b></div>
-    <button class="btn" id="playBtn" disabled>▶ MULAI STAGE (fase 2)</button>
+    <button class="btn" id="playBtn">▶ PILIH STAGE</button>
     <button class="btn logout" id="logoutBtn">Keluar</button>
   </div>
 </div>
 
-<div class="foot">ZOMBIE TD // server online</div>
+<!-- ===== STAGE SELECT ===== -->
+<div id="stageScreen" class="screen">
+  <div class="panel" style="width:min(94vw,520px)">
+    <h2>PILIH ZONE</h2>
+    <div class="sub" id="stgGold"></div>
+    <div class="stage-grid" id="stageGrid"></div>
+    <div class="back-row"><button class="btn ghost" id="stageBack">◀ Kembali</button></div>
+  </div>
+</div>
 
+<!-- ===== GAME ===== -->
+<div id="gameScreen" class="screen">
+  <div class="canvas-wrap">
+    <div class="hud">
+      <div class="hud-item">ZONE <b id="hudZone">—</b></div>
+      <div class="hud-item">WAVE <b id="hudWave">0/0</b></div>
+      <div class="hud-item grow"></div>
+      <div class="hud-item">❤ <b id="hudLives">20</b></div>
+      <div class="hud-item">$ <b id="hudGold">0</b></div>
+      <button class="btn small" id="waveBtn">▶ START WAVE</button>
+      <button class="btn small ghost" id="gameExit">✕</button>
+    </div>
+    <canvas id="gameCanvas"></canvas>
+    <div class="overlay" id="winOverlay">
+      <h2>ZONE CLEAR</h2>
+      <div class="stars" id="winStars"></div>
+      <div class="info" id="winInfo"></div>
+      <div><button class="btn" id="winNext">▶ STAGE BERIKUTNYA</button></div>
+      <div><button class="btn ghost" id="winRetry">↻ Ulangi</button></div>
+    </div>
+    <div class="overlay" id="loseOverlay">
+      <h2>HORDE MENANG</h2>
+      <div class="info" id="loseInfo"></div>
+      <div><button class="btn" id="loseRetry">↻ Coba Lagi</button></div>
+      <div><button class="btn ghost" id="loseExit">◀ Keluar</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="foot">ZOMBIE TD // server online</div>
+<div id="toast"></div>
+
+<script src="/js/pixels.js"></script>
+<script src="/js/path.js"></script>
+<script src="/js/wave.js"></script>
+<script src="/js/stage.js"></script>
+<script src="/js/engine.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 let TOKEN = localStorage.getItem('ztd_token') || '';
+let STATE = null; // player state from server
 
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active')}
 function setErr(id,msg){$(id).textContent=msg||''}
-function setOK(id,msg){$(id).textContent=msg||''}
+function toast(msg){
+  const t=$('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  clearTimeout(t._tm);
+  t._tm=setTimeout(()=>t.classList.remove('show'),2200);
+}
 
 async function api(path, opts={}){
   const res = await fetch(path, {
@@ -190,8 +303,6 @@ async function doReg(){
   const {status,data} = await api('/api/register',{method:'POST',body:JSON.stringify({username:u,password:p})});
   $('reBtn').disabled=false;
   if(status!==200){setErr('reErr',data.error||'gagal');return}
-  setOK('reErr',''); 
-  // auto login
   const r2 = await api('/api/login',{method:'POST',body:JSON.stringify({username:u,password:p})});
   if(r2.status===200){TOKEN=r2.data.token;localStorage.setItem('ztd_token',TOKEN);await loadApp()}
   else {setErr('reErr','daftar ok, login manual aja');show('loginScreen');$('liU').value=u}
@@ -199,21 +310,102 @@ async function doReg(){
 $('reBtn').onclick=doReg;
 $('reP').addEventListener('keydown',e=>{if(e.key==='Enter')doReg()});
 
-// --- app ---
+// --- HQ ---
 async function loadApp(){
   const {status,data} = await api('/api/me');
   if(status!==200){localStorage.removeItem('ztd_token');TOKEN='';show('loginScreen');return}
   $('appUser').textContent = 'SURVIVOR: '+data.username;
   $('appGold').textContent = data.gold.toLocaleString('id-ID');
-  let st = {};
-  try{st = JSON.parse(data.state)}catch(e){}
-  $('appStage').textContent = st.stage_open||1;
+  try{STATE = JSON.parse(data.state)}catch(e){STATE={}}
+  if(!STATE) STATE={};
+  $('appStage').textContent = STATE.stage_open||1;
   show('app');
 }
-$('playBtn').onclick=()=>{};
+$('playBtn').onclick=openStageSelect;
 $('logoutBtn').onclick=()=>{TOKEN='';localStorage.removeItem('ztd_token');show('loginScreen')};
 
-// auto-login kalau token ada
+// --- stage select ---
+function openStageSelect(){
+  $('stgGold').textContent='Gold: '+ (STATE.gold||0).toLocaleString('id-ID');
+  const grid=$('stageGrid');
+  grid.innerHTML='';
+  for(const id of STAGE_LIST){
+    const unlocked=stageUnlocked(id,STATE);
+    const stars=stageStars(id,STATE);
+    const card=document.createElement('div');
+    card.className='stage-card'+(unlocked?'':' locked');
+    card.tabIndex=0;
+    card.innerHTML =
+      '<div class="num">ZONE '+id+'</div>'+
+      '<div class="nm">'+stageName(id)+'</div>'+
+      '<div class="rw">reward $'+stageReward(id)+'</div>'+
+      '<div class="star">'+(unlocked?starsStr(stars):'🔒')+'</div>';
+    if(unlocked){
+      card.onclick=()=>startStageUI(id);
+      card.onkeydown=e=>{if(e.key==='Enter')startStageUI(id)};
+    }
+    grid.appendChild(card);
+  }
+  show('stageScreen');
+}
+function starsStr(n){
+  let s='';
+  for(let i=1;i<=3;i++) s+= i<=n?'★':'<span class="empty">★</span>';
+  return s;
+}
+$('stageBack').onclick=()=>loadApp();
+
+// --- game ---
+function startStageUI(id){
+  initGame($('gameCanvas'));
+  G.onUpdate=updateHUD;
+  G.onWin=onWin;
+  G.onLose=onLose;
+  startStage(id);
+  $('hudZone').textContent=id;
+  updateHUD();
+  showWinOverlay(false);
+  showLoseOverlay(false);
+  show('gameScreen');
+  startLoop();
+}
+
+function updateHUD(){
+  $('hudWave').textContent=(G.wave||0)+'/'+(G.waveTotal||0);
+  $('hudLives').textContent=G.lives;
+  $('hudGold').textContent=G.gold.toLocaleString('id-ID');
+  const livesEl=$('hudLives');
+  livesEl.className = G.lives<=5?'lives low':'';
+  const btn=$('waveBtn');
+  if(G.waveActive){
+    btn.disabled=true; btn.textContent='⏳ BERLANGSUNG…';
+  } else if(G.wave>=G.waveTotal){
+    btn.disabled=true; btn.textContent='—';
+  } else {
+    btn.disabled=false; btn.textContent='▶ START WAVE '+(G.wave+1);
+  }
+}
+$('waveBtn').onclick=()=>{ G.waveStartedAt=performance.now(); startWave(); updateHUD(); };
+$('gameExit').onclick=()=>openStageSelect();
+
+function showWinOverlay(v){$('winOverlay').classList.toggle('active',v)}
+function showLoseOverlay(v){$('loseOverlay').classList.toggle('active',v)}
+
+function onWin(res){
+  $('winStars').innerHTML=starsStr(res.stars);
+  $('winInfo').textContent='+$'+res.gold.toLocaleString('id-ID')+' — ZONE '+res.stage+' CLEAR';
+  showWinOverlay(true);
+  $('winNext').onclick=()=>startStageUI(res.stage+1);
+  $('winRetry').onclick=()=>startStageUI(res.stage);
+}
+function onLose(res){
+  $('loseInfo').textContent='Zombie nembus pertahanan di ZONE '+res.stage;
+  showLoseOverlay(true);
+  $('loseRetry').onclick=()=>startStageUI(res.stage);
+  $('loseExit').onclick=()=>openStageSelect();
+}
+
+// auto-login
 if(TOKEN) loadApp();
 </script>
 </body>
